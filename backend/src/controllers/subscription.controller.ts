@@ -114,26 +114,34 @@ export const confirmPayPalPayment = async (req: Request, res: Response) => {
             }
 
             // 更新或创建订阅
-            const subscription = await prisma.subscription.upsert({
-                where: {
-                    userId,
-                },
-                update: {
-                    plan: planId,
-                    status: 'active',
-                    currentPeriodStart: now,
-                    currentPeriodEnd: periodEnd,
-                    paypalSubscriptionId: orderId,
-                },
-                create: {
-                    userId,
-                    plan: planId,
-                    status: 'active',
-                    currentPeriodStart: now,
-                    currentPeriodEnd: periodEnd,
-                    paypalSubscriptionId: orderId,
-                },
+            const existingSubscription = await prisma.subscription.findFirst({
+                where: { userId },
             });
+
+            let subscription;
+            if (existingSubscription) {
+                subscription = await prisma.subscription.update({
+                    where: { id: existingSubscription.id },
+                    data: {
+                        plan: planId,
+                        status: 'active',
+                        currentPeriodStart: now,
+                        currentPeriodEnd: periodEnd,
+                        paypalSubscriptionId: orderId,
+                    },
+                });
+            } else {
+                subscription = await prisma.subscription.create({
+                    data: {
+                        userId,
+                        plan: planId,
+                        status: 'active',
+                        currentPeriodStart: now,
+                        currentPeriodEnd: periodEnd,
+                        paypalSubscriptionId: orderId,
+                    },
+                });
+            }
 
             // 更新用户订阅等级
             await prisma.user.update({
