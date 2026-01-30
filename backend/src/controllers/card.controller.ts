@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
 import prisma from '../config/database';
-import { getQueryString } from '../utils/query';
+import { getParamString, getRequiredParamString } from '../utils/params';
 import { generateShareUrl } from '../utils/geo';
 
 const createCardSchema = z.object({
@@ -70,8 +70,8 @@ export const getUserCards = async (req: Request, res: Response) => {
             return res.status(401).json({ error: 'Not authenticated' });
         }
 
-        const page = getQueryString(req.query.page) || '1';
-        const limit = getQueryString(req.query.limit) || '20';
+        const page = getParamString(req.query.page) || '1';
+        const limit = getParamString(req.query.limit) || '20';
         const pageNum = parseInt(page);
         const limitNum = parseInt(limit);
         const skip = (pageNum - 1) * limitNum;
@@ -117,7 +117,7 @@ export const getUserCards = async (req: Request, res: Response) => {
  */
 export const getCardById = async (req: Request, res: Response) => {
     try {
-        const { id } = req.params;
+        const id = getRequiredParamString(req.params.id);
         const userId = req.user?.userId;
 
         const card = await prisma.card.findUnique({
@@ -154,7 +154,7 @@ export const getCardById = async (req: Request, res: Response) => {
  */
 export const getCardByShareUrl = async (req: Request, res: Response) => {
     try {
-        const { shareUrl } = req.params;
+        const shareUrl = getRequiredParamString(req.params.shareUrl);
 
         const card = await prisma.card.findUnique({
             where: { shareUrl },
@@ -195,7 +195,7 @@ export const getCardByShareUrl = async (req: Request, res: Response) => {
  */
 export const updateCard = async (req: Request, res: Response) => {
     try {
-        const { id } = req.params;
+        const id = getRequiredParamString(req.params.id);
         const userId = req.user?.userId;
 
         if (!userId) {
@@ -237,7 +237,7 @@ export const updateCard = async (req: Request, res: Response) => {
  */
 export const deleteCard = async (req: Request, res: Response) => {
     try {
-        const { id } = req.params;
+        const id = getRequiredParamString(req.params.id);
         const userId = req.user?.userId;
 
         if (!userId) {

@@ -1,18 +1,18 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
 import prisma from '../config/database';
-import { getQueryString } from '../utils/query';
+import { getParamString, getRequiredParamString } from '../utils/params';
 
 /**
  * 获取模板列表（支持分页和筛选）
  */
 export const getTemplates = async (req: Request, res: Response) => {
     try {
-        const category = getQueryString(req.query.category);
-        const isPremium = getQueryString(req.query.isPremium);
-        const language = getQueryString(req.query.language);
-        const page = getQueryString(req.query.page) || '1';
-        const limit = getQueryString(req.query.limit) || '20';
+        const category = getParamString(req.query.category);
+        const isPremium = getParamString(req.query.isPremium);
+        const language = getParamString(req.query.language);
+        const page = getParamString(req.query.page) || '1';
+        const limit = getParamString(req.query.limit) || '20';
 
         const pageNum = parseInt(page);
         const limitNum = parseInt(limit);
@@ -116,7 +116,7 @@ export const getRecommendedTemplates = async (req: Request, res: Response) => {
  */
 export const getTemplateById = async (req: Request, res: Response) => {
     try {
-        const { id } = req.params;
+        const id = getRequiredParamString(req.params.id);
 
         const template = await prisma.template.findUnique({
             where: { id },
@@ -146,8 +146,8 @@ export const getTemplateById = async (req: Request, res: Response) => {
  */
 export const searchTemplates = async (req: Request, res: Response) => {
     try {
-        const q = getQueryString(req.query.q);
-        const category = getQueryString(req.query.category);
+        const q = getParamString(req.query.q);
+        const category = getParamString(req.query.category);
 
         if (!q) {
             return res.status(400).json({ error: 'Search query required' });

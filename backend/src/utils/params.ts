@@ -1,14 +1,13 @@
 /**
- * Query parameter type-safe utilities
- * Express req.query uses complex ParsedQs type
- * These utilities safely extract simple values
+ * Express parameter type-safe utilities
+ * Handles both req.query and req.params type extraction
  */
 
 /**
- * Extract string from query parameter
- * If array, returns first element
+ * Extract string from Express request parameter (query or params)
+ * Safely handles string | string[] | ParsedQs | ParsedQs[] | undefined
  */
-export function getQueryString(
+export function getParamString(
     value: any
 ): string | undefined {
     // Handle undefined/null
@@ -34,14 +33,24 @@ export function getQueryString(
 }
 
 /**
- * Extract number from query parameter
- * If array, returns first element as number
+ * Get string with guaranteed non-undefined result
+ * Use when parameter is required
  */
-export function getQueryNumber(
+export function getRequiredParamString(
+    value: any,
+    defaultValue: string = ''
+): string {
+    return getParamString(value) || defaultValue;
+}
+
+/**
+ * Extract number from parameter
+ */
+export function getParamNumber(
     value: any,
     defaultValue?: number
 ): number {
-    const str = getQueryString(value);
+    const str = getParamString(value);
     if (!str) {
         return defaultValue ?? 0;
     }
@@ -50,21 +59,21 @@ export function getQueryNumber(
 }
 
 /**
- * Extract boolean from query parameter
+ * Extract boolean from parameter
  * Accepts: "true", "1", "yes" as truthy
  */
-export function getQueryBoolean(
+export function getParamBoolean(
     value: any
 ): boolean {
-    const str = getQueryString(value)?.toLowerCase();
+    const str = getParamString(value)?.toLowerCase();
     return str === 'true' || str === '1' || str === 'yes';
 }
 
 /**
- * Extract array from query parameter
+ * Extract array from parameter
  * Always returns array (empty if undefined)
  */
-export function getQueryArray(
+export function getParamArray(
     value: any
 ): string[] {
     if (value === undefined || value === null) {
@@ -82,3 +91,9 @@ export function getQueryArray(
     // For any other type, return empty array
     return [];
 }
+
+// Legacy exports for backwards compatibility
+export const getQueryString = getParamString;
+export const getQueryNumber = getParamNumber;
+export const getQueryBoolean = getParamBoolean;
+export const getQueryArray = getParamArray;
