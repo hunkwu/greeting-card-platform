@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { fabric } from 'fabric';
+import * as fabric from 'fabric';
 
 interface CanvasEditorProps {
     onSave?: (designData: any) => void;
@@ -26,7 +26,7 @@ export function CanvasEditor({ onSave, initialData }: CanvasEditorProps) {
 
         // Load initial data if provided
         if (initialData) {
-            fabricCanvas.loadFromJSON(initialData, () => {
+            fabricCanvas.loadFromJSON(initialData).then(() => {
                 fabricCanvas.renderAll();
             });
         }
@@ -85,7 +85,7 @@ export function CanvasEditor({ onSave, initialData }: CanvasEditorProps) {
 
         const activeObjects = canvas.getActiveObjects();
         if (activeObjects.length) {
-            activeObjects.forEach((obj) => canvas.remove(obj));
+            activeObjects.forEach((obj: fabric.FabricObject) => canvas.remove(obj));
             canvas.discardActiveObject();
             canvas.renderAll();
         }

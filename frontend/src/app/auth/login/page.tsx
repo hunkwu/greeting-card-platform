@@ -18,7 +18,8 @@ export default function LoginPage() {
         setLoading(true);
 
         try {
-            await apiClient.login({ email, password });
+            const res = await apiClient.login(email, password);
+            localStorage.setItem('token', res.token);
             router.push('/dashboard');
         } catch (err) {
             setError(err instanceof Error ? err.message : 'Login failed');

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { CanvasEditor } from '@/components/editor/CanvasEditor';
 import { AIAssistant } from '@/components/ai/AIAssistant';
@@ -13,7 +13,7 @@ interface Card {
     designData: any;
 }
 
-export default function EditorPage() {
+function EditorContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const templateId = searchParams.get('template');
@@ -178,5 +178,20 @@ export default function EditorPage() {
                 </div>
             </div>
         </div>
+    );
+}
+
+export default function EditorPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="text-center">
+                    <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mb-4"></div>
+                    <p className="text-gray-600">加载编辑器...</p>
+                </div>
+            </div>
+        }>
+            <EditorContent />
+        </Suspense>
     );
 }
