@@ -224,7 +224,7 @@ export const favoriteTemplate = async (req: Request, res: Response) => {
 export const unfavoriteTemplate = async (req: Request, res: Response) => {
     try {
         const userId = req.user?.userId;
-        const { templateId } = req.params;
+        const templateId = getRequiredParamString(req.params.templateId);
 
         if (!userId) {
             return res.status(401).json({ error: 'Not authenticated' });
