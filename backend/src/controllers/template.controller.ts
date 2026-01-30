@@ -1,22 +1,21 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
 import prisma from '../config/database';
+import { getQueryString } from '../utils/query';
 
 /**
  * 获取模板列表（支持分页和筛选）
  */
 export const getTemplates = async (req: Request, res: Response) => {
     try {
-        const {
-            category,
-            isPremium,
-            language,
-            page = '1',
-            limit = '20'
-        } = req.query;
+        const category = getQueryString(req.query.category);
+        const isPremium = getQueryString(req.query.isPremium);
+        const language = getQueryString(req.query.language);
+        const page = getQueryString(req.query.page) || '1';
+        const limit = getQueryString(req.query.limit) || '20';
 
-        const pageNum = parseInt(page as string);
-        const limitNum = parseInt(limit as string);
+        const pageNum = parseInt(page);
+        const limitNum = parseInt(limit);
         const skip = (pageNum - 1) * limitNum;
 
         // 构建筛选条件
@@ -147,13 +146,14 @@ export const getTemplateById = async (req: Request, res: Response) => {
  */
 export const searchTemplates = async (req: Request, res: Response) => {
     try {
-        const { q, category } = req.query;
+        const q = getQueryString(req.query.q);
+        const category = getQueryString(req.query.category);
 
         if (!q) {
             return res.status(400).json({ error: 'Search query required' });
         }
 
-        const searchQuery = q as string;
+        const searchQuery = q;
 
         const where: any = {
             OR: [

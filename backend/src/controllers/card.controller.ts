@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { z } from 'zod';
 import prisma from '../config/database';
+import { getQueryString } from '../utils/query';
 import { generateShareUrl } from '../utils/geo';
 
 const createCardSchema = z.object({
@@ -69,9 +70,10 @@ export const getUserCards = async (req: Request, res: Response) => {
             return res.status(401).json({ error: 'Not authenticated' });
         }
 
-        const { page = '1', limit = '20' } = req.query;
-        const pageNum = parseInt(page as string);
-        const limitNum = parseInt(limit as string);
+        const page = getQueryString(req.query.page) || '1';
+        const limit = getQueryString(req.query.limit) || '20';
+        const pageNum = parseInt(page);
+        const limitNum = parseInt(limit);
         const skip = (pageNum - 1) * limitNum;
 
         const [cards, total] = await Promise.all([
